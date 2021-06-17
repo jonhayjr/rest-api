@@ -53,7 +53,7 @@ Content-Type: application/json
 
 ### Update Course (Minimum Data)
 PUT http://localhost:5000/api/courses/1 HTTP/1.1
-Authorization: Basic joe@smith.com:joepassword
+Authorization: Basic joe@smith.com:joepassword2
 Content-Type: application/json
 
 {

@@ -66,6 +66,69 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
   
 }));
 
+//Route that creates a new course
+router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
+    try {
+      const course = req.body;
+      await Course.create(course);
+      res.location('/').status(201).json({ "message": "Account successfully created!" });
+    } catch (error) {
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+        const errors = error.errors.map(err => err.message);
+        res.status(400).json({ errors });   
+      } else {
+        throw error;
+      }
+    }
+}));
 
+//Route that updates course with the corresponding id
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+    let course;
+    try {
+        course = await Course.findByPk(id);
+        if(course) {
+            await course.update(req.body);
+            res.status(204).end();
+        } else {
+            const err = new Error();
+            err.status = 404;
+            next(err);
+        }
+    } catch (error) {
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+        const errors = error.errors.map(err => err.message);
+        res.status(400).json({ errors });
+        } else {
+            throw error;
+        }
+    }
+  //}
+}));
+
+//Route that deletes course with the corresponding id
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+    let course;
+    try {
+        course = await Course.findByPk(id);
+        if(course) {
+            await course.destroy();
+            res.status(204).end();
+        } else {
+            const err = new Error();
+            err.status = 404;
+            next(err);
+        }
+    } catch (error) {
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+        const errors = error.errors.map(err => err.message);
+        res.status(400).json({ errors });
+        } else {
+            throw error;
+        }
+  }
+}));
 
 module.exports = router;
