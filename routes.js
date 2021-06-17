@@ -9,13 +9,15 @@ const bcrypt = require('bcrypt');
 
 // Route that returns the current authenticated user.
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
+    //Get Authenticated User
     const user = req.currentUser;
-  
+
+    //Return all current user data except password, createdAt and updatedAt fields
     res.json({
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      emailAddress: user.emailAddress,
-      password: user.password
+      emailAddress: user.emailAddress
     });
     
   }));
@@ -42,10 +44,14 @@ router.post('/users', asyncHandler(async (req, res) => {
 // Route that returns all courses
 router.get('/courses', asyncHandler(async (req, res) => {
   const courses = await Course.findAll({
+    attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
     include: [{
-      model: User
-    }],
+      model: User,
+      attributes: ['id', 'firstName', 'lastName', 'emailAddress']
+    }
+  ],
   });
+
   res.json(courses);
 }));
 
@@ -53,8 +59,10 @@ router.get('/courses', asyncHandler(async (req, res) => {
 router.get('/courses/:id', asyncHandler(async (req, res) => {
   const {id} = req.params;
   const course = await Course.findByPk(id, {
+    attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
     include: [{
-      model: User
+      model: User,
+      attributes: ['id', 'firstName', 'lastName', 'emailAddress']
     }],
   });
 
