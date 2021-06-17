@@ -94,51 +94,67 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 
 //Route that updates course with the corresponding id
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  const authenticatedUser = req.currentUser;
   const { id } = req.params;
-    let course;
+  const course = await Course.findByPk(id);
+  const courseUserId = course.userId;
+
+  //Checks if authenticatedUser owns course
+if (authenticatedUser.id === courseUserId) {
     try {
-        course = await Course.findByPk(id);
-        if(course) {
-            await course.update(req.body);
-            res.status(204).end();
-        } else {
-            const err = new Error();
-            err.status = 404;
-            next(err);
-        }
-    } catch (error) {
-      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-        const errors = error.errors.map(err => err.message);
-        res.status(400).json({ errors });
-        } else {
-            throw error;
-        }
-    }
-  //}
+      if (course) {
+          await course.update(req.body);
+          res.status(204).end();
+      } else {
+          const err = new Error();
+          err.status = 404;
+          next(err);
+      }
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const errors = error.errors.map(err => err.message);
+      res.status(400).json({ errors });
+      } else {
+          throw error;
+      }
+  }
+} else {
+  res.status(403).end();
+}
+
+
 }));
 
 //Route that deletes course with the corresponding id
 router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  const authenticatedUser = req.currentUser;
   const { id } = req.params;
-    let course;
-    try {
-        course = await Course.findByPk(id);
-        if(course) {
-            await course.destroy();
-            res.status(204).end();
-        } else {
-            const err = new Error();
-            err.status = 404;
-            next(err);
-        }
-    } catch (error) {
-      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-        const errors = error.errors.map(err => err.message);
-        res.status(400).json({ errors });
-        } else {
-            throw error;
-        }
+  const course = await Course.findByPk(id);
+  const courseUserId = course.userId;
+
+  //Checks if authenticatedUser owns course
+  if (authenticatedUser.id === courseUserId) {
+        try {
+          if (course) {
+              await course.destroy();
+              res.status(204).end();
+          } else {
+              const err = new Error();
+              err.status = 404;
+              next(err);
+          }
+      } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+          const errors = error.errors.map(err => err.message);
+          res.status(400).json({ errors });
+          } else {
+              throw error;
+          }
+    }
+  } else {
+    res.status(403).end();
   }
+   
 }));
 
 module.exports = router;
