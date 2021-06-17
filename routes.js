@@ -119,7 +119,7 @@ if (authenticatedUser.id === courseUserId) {
       }
   }
 } else {
-  res.status(403).end();
+  res.status(403).json({message: 'Access to this method is denied'});
 }
 
 
@@ -152,7 +152,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
           }
     }
   } else {
-    res.status(403).end();
+    res.status(403).json({message: 'Access to this method is denied'});
   }
    
 }));
