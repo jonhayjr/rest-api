@@ -11,15 +11,13 @@ const bcrypt = require('bcrypt');
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
     //Get Authenticated User
     const user = req.currentUser;
-
-    //Return all current user data except password, createdAt and updatedAt fields
-    res.json({
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      emailAddress: user.emailAddress
-    });
-    
+      //Return all current user data except password, createdAt and updatedAt fields
+      res.json({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailAddress: user.emailAddress
+      });  
   }));
 
 // Route that creates a new user.
@@ -78,6 +76,8 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 
 //Route that creates a new course
 router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
+   //Get Authenticated User
+   const user = req.currentUser;
     try {
       const course = req.body;
       await Course.create(course);
@@ -94,13 +94,13 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 
 //Route that updates course with the corresponding id
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
-  const authenticatedUser = req.currentUser;
+  const user = req.currentUser;
   const { id } = req.params;
   const course = await Course.findByPk(id);
   const courseUserId = course.userId;
 
   //Checks if authenticatedUser owns course
-if (authenticatedUser.id === courseUserId) {
+if (user.id === courseUserId) {
     try {
       if (course) {
           await course.update(req.body);

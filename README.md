@@ -4,4 +4,4 @@ This API will provides a way for users to interact with a school database that c
 ## Getting Started
 
 1. Run `npm install` to install the necessary dependencies.
-2. Run the command `npm start` to start the app..
+2. Run the command `npm start` to start the app.
