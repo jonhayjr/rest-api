@@ -79,9 +79,8 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
    //Get Authenticated User
    const user = req.currentUser;
     try {
-      const course = req.body;
-      await Course.create(course);
-      res.location('/').status(201).json({ "message": "Account successfully created!" });
+      const course = await Course.create(req.body);
+      res.location(`/courses/${course.id}`).status(201).json({ "message": "Account successfully created!" });
     } catch (error) {
       if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
         const errors = error.errors.map(err => err.message);
@@ -93,7 +92,7 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 }));
 
 //Route that updates course with the corresponding id
-router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
   const user = req.currentUser;
   const { id } = req.params;
   const course = await Course.findByPk(id);
@@ -126,7 +125,7 @@ if (user.id === courseUserId) {
 }));
 
 //Route that deletes course with the corresponding id
-router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
   const authenticatedUser = req.currentUser;
   const { id } = req.params;
   const course = await Course.findByPk(id);
@@ -154,7 +153,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
   } else {
     res.status(403).json({message: 'Access to this method is denied'});
   }
-   
+ 
 }));
 
 module.exports = router;
