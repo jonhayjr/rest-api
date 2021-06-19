@@ -25,6 +25,8 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     const user = req.body;
+
+    //If there is a password, hash it.
     if (user.password) {
       user.password = bcrypt.hashSync(user.password, 10);
     }
