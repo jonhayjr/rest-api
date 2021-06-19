@@ -67,9 +67,7 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
   if (course) {
     res.json(course);
   } else {
-    const err = new Error();
-   err.status = 404;
-   next(err);
+    res.status(404).json({message: 'Course does not exist'});
  }
   
 }));
@@ -93,22 +91,23 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
 
 //Route that updates course with the corresponding id
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
-  const user = req.currentUser;
+  const authenticatedUser = req.currentUser;
   const { id } = req.params;
   const course = await Course.findByPk(id);
-  const courseUserId = course.userId;
-
-  //Checks if authenticatedUser owns course
-if (user.id === courseUserId) {
     try {
+      //Checks if course exists
       if (course) {
-          await course.update(req.body);
-          res.status(204).end();
-      } else {
-          const err = new Error();
-          err.status = 404;
-          next(err);
-      }
+          const courseUserId = course.userId;
+          //Checks if authenticated user is course owner
+          if (authenticatedUser.id === courseUserId) {
+            await course.update(req.body);
+            res.status(204).end();
+          } else {
+          res.status(403).json({message: 'Access to this method is denied'});
+        } 
+    } else {
+      res.status(404).json({message: 'Course does not exist'});
+    }
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
@@ -117,10 +116,6 @@ if (user.id === courseUserId) {
           throw error;
       }
   }
-} else {
-  res.status(403).json({message: 'Access to this method is denied'});
-}
-
 
 }));
 
@@ -129,19 +124,20 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res, ne
   const authenticatedUser = req.currentUser;
   const { id } = req.params;
   const course = await Course.findByPk(id);
-  const courseUserId = course.userId;
-
-  //Checks if authenticatedUser owns course
-  if (authenticatedUser.id === courseUserId) {
         try {
+          //Checks if course exists
           if (course) {
+            const courseUserId = course.userId;
+            //Checks if authenticated user is the course owner
+            if (authenticatedUser.id === courseUserId) {
               await course.destroy();
               res.status(204).end();
+            } else {
+                res.status(403).json({message: 'Access to this method is denied'});
+            }   
           } else {
-              const err = new Error();
-              err.status = 404;
-              next(err);
-          }
+              res.status(404).json({message: 'Course does not exist'});
+            }
       } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
           const errors = error.errors.map(err => err.message);
@@ -149,11 +145,7 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res, ne
           } else {
               throw error;
           }
-    }
-  } else {
-    res.status(403).json({message: 'Access to this method is denied'});
-  }
- 
+      }
 }));
 
 module.exports = router;
