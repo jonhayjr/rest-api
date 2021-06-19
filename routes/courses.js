@@ -76,10 +76,10 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res, next)
             await course.update(req.body);
             res.status(204).end();
           } else {
-          res.status(403).json({message: 'Access to this method is denied'});
+          res.status(403).json({message: 'Only the course owner can perform this action'});
         } 
     } else {
-      res.status(404).json({message: 'Course does not exist'});
+      res.status(404).json({message: `Course ID ${id} does not exist`});
     }
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -107,10 +107,10 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res, ne
               await course.destroy();
               res.status(204).end();
             } else {
-                res.status(403).json({message: 'Access to this method is denied'});
+                res.status(403).json({message: 'Only the course owner can perform this action'});
             }   
           } else {
-              res.status(404).json({message: 'Course does not exist'});
+              res.status(404).json({message: `Course ID ${id} does not exist`});
             }
       } catch (error) {
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
