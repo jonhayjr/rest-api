@@ -29,7 +29,7 @@ module.exports = (sequelize) => {
           msg: 'Description is required'
         },
         notEmpty : {
-          msg: 'please provide a description'
+          msg: 'Please provide a description'
         }
       }
     },
